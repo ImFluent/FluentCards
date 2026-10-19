@@ -3,8 +3,12 @@
 //   node tools/build-store.js
 //
 //   dist/edge/       Chromium MV3 build (Microsoft Edge Add-ons) — manifest as-is,
-//                    minus the Chrome-only "key" (the store assigns its own ID)
-//                    and minus developer files (tools/, test/, *.bat, .git*).
+//                    KEEPS the "key" (Edge honors it, which pins a stable
+//                    extension ID so users' saved decks survive reinstalls —
+//                    Edge ignores the extra field) and minus developer files
+//                    (tools/, test/, *.bat, .git*). Note: a Chrome Web Store
+//                    upload would instead strip "key" — the store assigns its
+//                    own ID — so don't reuse dist/edge/ verbatim there.
 //   dist/firefox/    Firefox MV3 build (addons.mozilla.org) — background.scripts
 //                    instead of service_worker, browser_specific_settings.gecko
 //                    (ID + strict_min_version + data_collection_permissions),
@@ -68,8 +72,11 @@ function stage(targetDir) {
 function buildEdge() {
   const dir = join(DIST, "edge");
   stage(dir);
+  // Deliberately KEEP "key": Edge honors it, so the extension ID stays stable
+  // across fresh installs and users don't lose their saved decks. Edge ignores
+  // fields it doesn't recognize. (A Chrome Web Store upload is the one case
+  // that should strip "key" — see the header note.)
   const m = JSON.parse(JSON.stringify(BASE_MANIFEST));
-  delete m.key; // the store assigns its own ID
   writeFileSync(join(dir, "manifest.json"), JSON.stringify(m, null, 2));
   return dir;
 }
@@ -138,7 +145,7 @@ function verifyStaged(dir, label) {
       problems.push("no gecko id");
   } else {
     if (!m.background || !m.background.service_worker) problems.push("no background.service_worker");
-    if (m.key !== undefined) problems.push("still has key");
+    if (m.key === undefined) problems.push("missing key (Edge needs it for a stable ID)");
   }
   // every file the manifest points at must exist
   const refs = [];
