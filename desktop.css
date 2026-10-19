@@ -1,0 +1,258 @@
+/* =============================================================================
+ * FluentCards — desktop layout for the app page.
+ *
+ * app.css was written phone-first: on a wide screen .app-shell renders as
+ * stacked full-width bands (the sidebar block has no styles of its own).
+ * This layer, loaded after app.css, turns it into a real sidebar shell. The
+ * extension has no embedded player, so the Watch view is hidden here — the
+ * topbar's "Watch YouTube" button is the way to YouTube.
+ * ========================================================================== */
+
+/* ---------------------------------------------------- base fixes, all sizes */
+
+/* Nav icons: app.css has no .nav-ico rules, so the raw SVGs fill solid black. */
+.nav-ico {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.nav-ico svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.page-title {
+  font-size: 17.5px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.top-chip {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The chip is only filled by the desktop shell — never render an empty pill. */
+.top-chip:empty {
+  display: none;
+}
+/* Buttons that happen to be links ("Watch on YouTube") must not underline. */
+a.btn,
+.btn {
+  text-decoration: none;
+}
+
+/* The extension cannot host YouTube — this view only ever shows a dead
+   "needs the desktop app" panel. */
+[data-view="watch"],
+#view-watch {
+  display: none !important;
+}
+
+/* ----------------------------------------------------------- desktop >=900 */
+@media (min-width: 900px) {
+  .app-shell {
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    width: 238px;
+    flex: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 14px 14px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+
+  .brand {
+    padding: 4px 8px 12px;
+  }
+  .brand .logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nav {
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+  .nav-btn {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13.8px;
+    text-align: left;
+    color: var(--muted);
+  }
+  .nav-btn:hover {
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .nav-btn.is-active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: none;
+  }
+  .nav-btn.is-active .nav-ico {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .sidebar-spacer {
+    flex: 1;
+    min-height: 14px;
+  }
+
+  .due-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .due-num {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .due-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .due-card .btn {
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .side-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 6px;
+  }
+  .side-note {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    padding-top: 8px;
+  }
+
+  .main-wrap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 14px 26px;
+    gap: 16px;
+  }
+
+  #main {
+    width: 100%;
+    max-width: 1040px;
+    padding: 30px 30px 96px;
+  }
+}
+
+/* ------------------------------------------------------------- phone <900 */
+@media (max-width: 899px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--panel);
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    padding: 0 4px;
+  }
+  .nav {
+    order: 5;
+    width: 100%;
+    margin: 0;
+    padding: 3px;
+    overflow-x: auto;
+  }
+  .nav-btn {
+    padding: 7px 11px;
+    font-size: 13px;
+  }
+  .sidebar-spacer {
+    display: none;
+  }
+  .due-card {
+    margin-left: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 6px 5px 11px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .due-num {
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .due-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .due-card .btn {
+    margin-top: 0;
+    width: auto;
+  }
+  .side-foot {
+    padding-top: 0;
+  }
+  .side-note {
+    display: none;
+  }
+}

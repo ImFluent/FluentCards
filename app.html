@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FluentCards</title>
+    <link rel="icon" href="icons/icon32.png" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="desktop.css" />
+    <meta name="theme-color" content="#6d5efc" />
+    <link rel="apple-touch-icon" href="icons/icon192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="FluentCards" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- ============================================================ SIDEBAR -->
+      <aside class="sidebar">
+        <div class="brand">
+          <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+            <defs>
+              <linearGradient id="fcg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6d5efc" />
+                <stop offset="100%" stop-color="#a855f7" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#fcg)" />
+            <path d="M18.4 7.5 10 17.6h4.6L13.4 24.5 21.8 14.4h-4.7z" fill="#fff" />
+          </svg>
+          <span class="brand-name">FluentCards</span>
+        </div>
+
+        <nav class="nav" id="nav" aria-label="Main">
+          <button class="nav-btn is-active" data-view="today">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z" /><path d="M4 10h16" /></svg>
+            </span>
+            <span>Today</span>
+          </button>
+          <button class="nav-btn" data-view="watch">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m10 8 6 4-6 4z" /><rect x="3" y="4" width="18" height="16" rx="3" /></svg>
+            </span>
+            <span>Watch</span>
+          </button>
+          <button class="nav-btn" data-view="add">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+            </span>
+            <span>Add words</span>
+          </button>
+          <button class="nav-btn" data-view="library">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11" /></svg>
+            </span>
+            <span>Library</span>
+          </button>
+          <button class="nav-btn" data-view="settings">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5" />
+              </svg>
+            </span>
+            <span>Settings</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-spacer"></div>
+
+        <div class="due-card" id="dueCard">
+          <span class="due-num" id="dueCount">0</span>
+          <span class="due-label">words waiting</span>
+          <button class="btn btn-sm" id="dueStudy">Review now</button>
+        </div>
+
+        <div class="side-foot">
+          <div class="streak" id="streakBadge" title="Daily streak">
+            <span class="streak-flame">🔥</span><span id="streakCount">0</span>
+          </div>
+          <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+            <span class="theme-icon">◐</span>
+          </button>
+        </div>
+        <div class="side-note">Stored on this computer</div>
+      </aside>
+
+      <!-- ============================================================== MAIN -->
+      <div class="main-wrap">
+        <header class="topbar">
+          <div class="page-title" id="pageTitle">Today</div>
+          <div class="topbar-right">
+            <span class="top-chip" id="topChip"></span>
+            <button class="btn btn-ghost btn-sm" id="topWatch">▶ Watch YouTube</button>
+          </div>
+        </header>
+
+        <main id="main">
+          <!-- ======================================================== TODAY -->
+          <section class="view is-active" id="view-today">
+            <div id="todayBody"></div>
+          </section>
+
+          <!-- ======================================================== WATCH -->
+          <section class="view" id="view-watch">
+            <div class="watch-shell">
+              <div class="watch-top">
+                <div class="watch-nav">
+                  <button class="wnav" id="watchBack" title="Back" aria-label="Back">
+                    <svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6" /></svg>
+                  </button>
+                  <button class="wnav" id="watchForward" title="Forward" aria-label="Forward">
+                    <svg viewBox="0 0 24 24"><path d="m10 6 6 6-6 6" /></svg>
+                  </button>
+                  <button class="wnav" id="watchReload" title="Reload" aria-label="Reload">
+                    <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7" /><path d="M20 4v5h-5" /></svg>
+                  </button>
+                  <button class="wnav wnav-home" id="watchHome" title="YouTube home">Home</button>
+                </div>
+                <div class="watch-title" id="watchTitle">YouTube</div>
+                <div class="watch-actions">
+                  <span class="watch-tip">Turn on <b>CC</b>, then click any word</span>
+                  <button class="btn btn-ghost btn-sm" id="watchExternal">Open in browser ↗</button>
+                </div>
+              </div>
+
+              <div class="watch-body">
+                <div class="watch-stage" id="watchStage">
+                  <div class="watch-fallback" id="watchFallback" hidden>
+                    <h3>YouTube lives here</h3>
+                    <p>
+                      This panel needs the desktop app. Start FluentCards with
+                      <code>npm start</code> inside the <code>desktop</code> folder.
+                    </p>
+                  </div>
+                </div>
+
+                <aside class="watch-side" id="watchSide">
+                  <div class="ws-head">
+                    <span id="wsTitle">Recent words</span>
+                    <span class="ws-count" id="watchSavedCount"></span>
+                  </div>
+                  <div class="ws-list" id="watchRecent"></div>
+                  <button class="btn ws-review" id="watchReview">
+                    Review <span id="watchDue">0</span> due
+                  </button>
+                  <p class="ws-hint">
+                    Click a word in the subtitles — its meaning appears over the
+                    video and the card lands here and in your deck.
+                  </p>
+                </aside>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================================== ADD -->
+          <section class="view" id="view-add">
+            <div class="add-wrap">
+              <h2 class="panel-title">Add words</h2>
+              <p class="field-hint add-hint">
+                Paste or type a sentence — then tap every word you want to learn.
+                On a phone you can also share text here straight from the YouTube
+                app (share → FluentCards).
+              </p>
+
+              <textarea
+                id="addText"
+                class="add-text"
+                rows="3"
+                placeholder="e.g. Come on, get your act together, we're late!"
+                autocomplete="off"
+                autocapitalize="sentences"
+                spellcheck="false"
+              ></textarea>
+
+              <div class="add-actions">
+                <button class="btn" id="addTokenizeBtn">Show the words</button>
+                <button class="btn btn-ghost" id="addClearBtn">Clear</button>
+              </div>
+
+              <div id="addFeedback" class="add-feedback" hidden></div>
+
+              <div id="addTokens" class="add-tokens"></div>
+
+              <div class="add-status" id="addStatus" hidden></div>
+            </div>
+          </section>
+
+          <!-- ====================================================== LIBRARY -->
+          <section class="view" id="view-library">
+            <div class="lib-head">
+              <div class="search-wrap">
+                <svg viewBox="0 0 24 24" class="search-ico" aria-hidden="true">
+                  <path
+                    d="M10 4a6 6 0 1 0 3.6 10.8l4.3 4.3 1.4-1.4-4.3-4.3A6 6 0 0 0 10 4zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <input
+                  id="searchInput"
+                  type="search"
+                  placeholder="Search words, meanings or sentences…"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="chips" id="filterChips">
+                <button class="chip is-active" data-filter="all">All</button>
+                <button class="chip" data-filter="due">Due</button>
+                <button class="chip" data-filter="learning">Learning</button>
+                <button class="chip" data-filter="mastered">Mastered</button>
+              </div>
+              <div class="lib-meta">
+                <span id="libCount"></span>
+                <button class="btn btn-ghost btn-sm" id="lookupAllBtn" title="Fetch meanings for words that are missing one">
+                  Find missing meanings
+                </button>
+              </div>
+            </div>
+
+            <div id="libraryBody"></div>
+          </section>
+
+          <!-- ===================================================== SETTINGS -->
+          <section class="view" id="view-settings">
+            <div class="settings-grid">
+              <div class="panel">
+                <h2 class="panel-title">Learning</h2>
+
+                <label class="field">
+                  <span class="field-label">Dictionary language</span>
+                  <span class="field-hint">Definitions are looked up in this language.</span>
+                  <select id="setLang">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="it">Italiano</option>
+                    <option value="pt">Português</option>
+                    <option value="nl">Nederlands</option>
+                    <option value="ru">Русский</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="ar">العربية</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="zh">中文</option>
+                  </select>
+                </label>
+
+                <div class="field">
+                  <span class="field-label">Translate into</span>
+                  <span class="field-hint">
+                    Your languages appear on every card and in the mini card on
+                    YouTube: the meaning and the clicked sentence, both translated.
+                    English is always available too. Pick up to 3.
+                  </span>
+                  <div class="lang-checks" id="setTrLangs"></div>
+                </div>
+
+                <label class="field">
+                  <span class="field-label">New words per day</span>
+                  <span class="field-hint">
+                    How many words you click in videos may enter your study queue per day.
+                    0 = unlimited.
+                  </span>
+                  <input id="setNewPerDay" type="number" min="0" max="200" step="1" />
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Daily reminder</span>
+                  <span class="field-hint">A notification when words are waiting. Leave empty to switch off.</span>
+                  <input id="setReminder" type="time" />
+                </label>
+              </div>
+
+              <div class="panel">
+                <h2 class="panel-title">On YouTube</h2>
+
+                <label class="switch-row">
+                  <span>
+                    <span class="field-label">Click words in subtitles</span>
+                    <span class="field-hint">Turning this off stops click-to-save in the player.</span>
+                  </span>
+                  <input type="checkbox" id="setEnabled" class="switch" />
+                </label>
+
+                <label class="switch-row">
+                  <span>
+                    <span class="field-label">Underline unknown words</span>
+                    <span class="field-hint">Shows a dotted underline under every caption word.</span>
+                  </span>
+                  <input type="checkbox" id="setShowHints" class="switch" />
+                </label>
+
+                <div class="hint-box">
+                  <b>How to use it</b>
+                  <ol>
+                    <li>Press <b>▶ Watch YouTube</b> at the top and play any video.</li>
+                    <li>Turn on <b>CC</b>, then click a word you don't know.</li>
+                    <li>Come back to <b>Today</b> and press <b>Space</b> to review.</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h2 class="panel-title">Appearance</h2>
+                <label class="field">
+                  <span class="field-label">Theme</span>
+                  <select id="setTheme">
+                    <option value="auto">Match system</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="panel">
+                <h2 class="panel-title">Your data</h2>
+                <p class="field-hint">
+                  Cards are stored on this computer, in the app's own data folder.
+                  Export a backup before reinstalling.
+                </p>
+                <div class="btn-row">
+                  <button class="btn btn-ghost" id="exportBtn">Export JSON</button>
+                  <button class="btn btn-ghost" id="importBtn">Import JSON</button>
+                  <button class="btn btn-danger-ghost" id="resetBtn">Erase everything</button>
+                </div>
+                <input type="file" id="importFile" accept="application/json,.json" hidden />
+                <p class="deck-path" id="deckPath"></p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="app-toast" id="appToast" hidden></div>
+
+    <script src="lib/storage.js"></script>
+    <script src="app.js"></script>
+    <script>
+    </script>
+  </body>
+</html>

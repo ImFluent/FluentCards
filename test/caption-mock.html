@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FluentCards caption test (mock YouTube player)</title>
+    <link rel="stylesheet" href="../content.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        background: #101218;
+        color: #e8eaf2;
+        display: flex;
+        min-height: 100vh;
+      }
+      .wrap { display: flex; gap: 26px; padding: 28px; flex: 1; align-items: flex-start; }
+
+      /* ---- faithful-ish YouTube player shell ---- */
+      .player-outer { flex: 1 1 720px; max-width: 860px; }
+      .html5-video-player {
+        position: relative;
+        background: #000;
+        border-radius: 14px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      }
+      .fake-video {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(600px 300px at 30% 20%, #2b3a67 0%, transparent 60%),
+          linear-gradient(160deg, #14213d, #0b1020);
+        display: grid;
+        place-items: center;
+        color: rgba(255,255,255,.28);
+        font-size: 15px;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+      }
+
+      /* YouTube keeps the caption overlay click-through */
+      .ytp-caption-window-container {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 14%;
+        z-index: 30;
+      }
+      .ytp-caption-window {
+        pointer-events: none;
+        background: rgba(0,0,0,.72);
+        padding: 4px 10px;
+        border-radius: 3px;
+        max-width: 84%;
+      }
+      .caption-visual-line { display: block; }
+      .ytp-caption-segment {
+        display: inline-block;
+        white-space: pre-wrap;
+        color: #fff;
+        font: 20px/1.45 Roboto, Arial, sans-serif;
+        text-shadow: 0 0 3px rgba(0,0,0,.9);
+      }
+
+      .controls {
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 0 14px;
+        background: linear-gradient(transparent, rgba(0,0,0,.85));
+        z-index: 40;
+        color: #fff;
+        font-size: 13px;
+      }
+      .ytp-subtitles-button {
+        background: none; border: 0; color: #fff; cursor: pointer;
+        font-size: 13px; padding: 4px 7px; border-radius: 4px;
+      }
+      .ytp-subtitles-button:hover { background: rgba(255,255,255,.16); }
+
+      /* ---- side panel ---- */
+      .panel {
+        flex: 0 0 300px;
+        background: #171a23;
+        border: 1px solid #262b38;
+        border-radius: 14px;
+        padding: 18px;
+      }
+      .panel h1 { font-size: 16px; margin: 0 0 4px; }
+      .panel p { font-size: 13px; color: #98a1b3; margin: 0 0 14px; line-height: 1.5; }
+      .panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      .panel li {
+        background: #1f2330; border: 1px solid #2b3141; border-radius: 10px;
+        padding: 9px 11px; font-size: 13px;
+      }
+      .panel li b { display: block; font-size: 14px; }
+      .panel li span { color: #98a1b3; font-size: 12px; }
+      .empty { color: #98a1b3; font-size: 13px; font-style: italic; }
+      .btn {
+        display: inline-block; margin-top: 14px; padding: 9px 14px;
+        background: #6d5efc; color: #fff; border: 0; border-radius: 10px;
+        font-weight: 650; font-size: 14px; cursor: pointer; text-decoration: none;
+      }
+      .btn.ghost { background: #232735; margin-left: 8px; }
+      .note {
+        margin-top: 14px; font-size: 12px; color: #7f8798; line-height: 1.55;
+        border-top: 1px solid #262b38; padding-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="player-outer">
+        <div class="html5-video-player" id="movie_player">
+          <div class="fake-video">mock youtube video</div>
+
+          <div class="ytp-caption-window-container" id="ytp-caption-window-container">
+            <div class="ytp-caption-window">
+              <span class="caption-visual-line" id="line"></span>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="ytp-subtitles-button" id="ccBtn" aria-pressed="true">CC</button>
+            <span class="ytp-time-current" id="timeCurrent">0:42</span>
+            <span style="opacity:.6">Subtitles on (mock)</span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#98a1b3;margin:14px 2px 0">
+          This page mimics the YouTube player DOM. Click any underlined word in the
+          subtitles above to save it as a flashcard.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h1>Mock player test</h1>
+        <p>
+          Captions change every few seconds, exactly like the real player (both
+          “new nodes” and “text updated in place” are simulated).
+        </p>
+        <ul id="savedList"><li class="empty">Nothing saved yet</li></ul>
+        <a class="btn" href="../app.html">Open flashcards</a>
+        <button class="btn ghost" id="clearBtn">Clear data</button>
+        <div class="note">
+          A green underline means the word is already in your deck. The toast at the
+          bottom-left of the player confirms each save.
+        </div>
+      </div>
+    </div>
+
+    <script src="../lib/storage.js"></script>
+    <script>
+      (function () {
+        var cues = [
+          ["The committee decided to ", "postpone the meeting until Friday."],
+          ["Her explanation was surprisingly ", "concise and easy to follow."],
+          ["Small habits compound over time, which is why ", "consistency matters more than intensity."],
+          ["He tried to ", "mitigate the damage by apologising immediately."],
+          ["The data seemed to ", "corroborate our original hypothesis."],
+          ["Don't ", "procrastinate — start with the hardest task first."]
+        ];
+        var line = document.getElementById("line");
+        var i = 0;
+        var mode = 0;
+
+        function render(cue, fresh) {
+          if (fresh || !line.childElementCount) {
+            line.innerHTML = "";
+            cue.forEach(function (part) {
+              var seg = document.createElement("span");
+              seg.className = "ytp-caption-segment";
+              seg.textContent = part;
+              line.appendChild(seg);
+            });
+          } else {
+            // YouTube also updates the text of segments it already created
+            var segs = line.querySelectorAll(".ytp-caption-segment");
+            cue.forEach(function (part, n) {
+              if (segs[n]) segs[n].textContent = part;
+              else {
+                var seg = document.createElement("span");
+                seg.className = "ytp-caption-segment";
+                seg.textContent = part;
+                line.appendChild(seg);
+              }
+            });
+            while (line.childElementCount > cue.length) line.removeChild(line.lastChild);
+          }
+        }
+
+        function tick() {
+          var cue = cues[i % cues.length];
+          render(cue, mode % 2 === 0);
+          mode++;
+          i++;
+          var sec = 42 + i * 7;
+          document.getElementById("timeCurrent").textContent =
+            Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+        }
+
+        tick();
+        setInterval(tick, 3000);
+
+        document.getElementById("clearBtn").addEventListener("click", function () {
+          FC.store.get(null).then(function (all) {
+            var keys = Object.keys(all).filter(function (k) {
+              return k.indexOf("fc:") === 0;
+            });
+            if (keys.length) FC.store.remove(keys);
+            refresh();
+          });
+        });
+
+        function refresh() {
+          FC.listCards().then(function (cards) {
+            var list = document.getElementById("savedList");
+            if (!cards.length) {
+              list.innerHTML = '<li class="empty">Nothing saved yet</li>';
+              return;
+            }
+            list.innerHTML = cards
+              .slice(-8)
+              .reverse()
+              .map(function (c) {
+                return (
+                  "<li><b>" +
+                  c.word.replace(/</g, "&lt;") +
+                  "</b><span>" +
+                  (c.meaning || "no meaning yet").replace(/</g, "&lt;") +
+                  "</span></li>"
+                );
+              })
+              .join("");
+          });
+        }
+        setInterval(refresh, 900);
+        refresh();
+      })();
+    </script>
+    <script src="../content.js"></script>
+  </body>
+</html>

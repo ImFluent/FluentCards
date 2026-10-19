@@ -1,0 +1,14 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+*.log
+
+# Packaging output — never commit keys or signed bundles
+*.zip
+*.crx
+*.pem

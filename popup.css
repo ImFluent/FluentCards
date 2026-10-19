@@ -1,0 +1,229 @@
+/* FluentCards — toolbar popup */
+:root {
+  --bg: #ffffff;
+  --panel: #f7f8fc;
+  --text: #14161c;
+  --muted: #6b7280;
+  --line: #e6e8f0;
+  --line-strong: #d5d9e6;
+  --accent: #6d5efc;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(109, 94, 252, 0.11);
+  --ok: #16a34a;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #14171f;
+  --panel: #1a1e28;
+  --text: #e9ecf5;
+  --muted: #929aae;
+  --line: #242937;
+  --line-strong: #323849;
+  --accent: #8b7cff;
+  --accent-ink: #0c0e13;
+  --accent-soft: rgba(139, 124, 255, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.p-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.p-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.p-name {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-size: 15px;
+}
+
+.p-streak {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.16);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.p-hero {
+  text-align: center;
+  padding: 22px 16px 18px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+
+.p-big {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.p-lbl {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.p-btn {
+  margin-top: 15px;
+  width: 100%;
+  border: 0;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px;
+  border-radius: 13px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.32);
+  transition: 0.16s;
+}
+
+.p-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(109, 94, 252, 0.4);
+}
+
+.p-next {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  min-height: 16px;
+}
+
+.p-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 4px 14px 14px;
+}
+
+.p-stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 6px;
+  text-align: center;
+}
+
+.p-stat b {
+  display: block;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.p-stat span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 14px 12px;
+  padding: 11px 13px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.p-switch b {
+  display: block;
+  font-size: 13.5px;
+}
+
+.p-switch i {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.p-sw {
+  appearance: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  position: relative;
+  cursor: pointer;
+  transition: 0.18s;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.p-sw::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: 0.18s;
+}
+
+.p-sw:checked {
+  background: var(--accent);
+}
+
+.p-sw:checked::after {
+  transform: translateX(18px);
+}
+
+.p-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.p-foot span {
+  flex: 1;
+}
+
+.p-foot a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.p-foot a:hover {
+  text-decoration: underline;
+}

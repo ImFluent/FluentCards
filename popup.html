@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <title>FluentCards</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="p-head">
+      <svg class="p-logo" viewBox="0 0 32 32" aria-hidden="true">
+        <defs>
+          <linearGradient id="pcg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6d5efc" />
+            <stop offset="100%" stop-color="#a855f7" />
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#pcg)" />
+        <path d="M18.4 7.5 10 17.6h4.6L13.4 24.5 21.8 14.4h-4.7z" fill="#fff" />
+      </svg>
+      <span class="p-name">FluentCards</span>
+      <span class="p-streak" id="pStreak">🔥 0</span>
+    </header>
+
+    <div class="p-hero">
+      <div class="p-big" id="pDue">0</div>
+      <div class="p-lbl" id="pDueLabel">words waiting for you</div>
+      <button class="p-btn" id="pStudy">Study now</button>
+      <div class="p-hint" id="pNext"></div>
+    </div>
+
+    <div class="p-stats">
+      <div class="p-stat"><b id="pTotal">0</b><span>saved</span></div>
+      <div class="p-stat"><b id="pMastered">0</b><span>mastered</span></div>
+      <div class="p-stat"><b id="pToday">0</b><span>today</span></div>
+    </div>
+
+    <label class="p-switch">
+      <span>
+        <b>Click words in subtitles</b>
+        <i id="pToggleState">on</i>
+      </span>
+      <input type="checkbox" id="pEnabled" class="p-sw" />
+    </label>
+
+    <footer class="p-foot">
+      <span>Open a video, turn on <b>CC</b>, click a word.</span>
+      <a href="#" id="pLibrary">Library</a>
+      <a href="#" id="pSettings">Settings</a>
+    </footer>
+
+    <script src="lib/storage.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
