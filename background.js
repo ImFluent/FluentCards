@@ -3,7 +3,10 @@
  * Keeps the toolbar badge up to date, runs the daily reminder and answers
  * dictionary lookups (so content scripts never fight with CORS).
  * ========================================================================== */
-importScripts("lib/storage.js");
+// Chrome/Edge (service worker) loads storage here; Firefox (event page) gets
+// it from "background.scripts" in its manifest instead — importScripts only
+// exists in the service-worker context, so guard it.
+if (typeof importScripts === "function") importScripts("lib/storage.js");
 
 var REMINDER_ALARM = "fc-reminder";
 
