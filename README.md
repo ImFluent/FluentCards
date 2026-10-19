@@ -257,6 +257,11 @@ FluentCards/
   (data goes to `localStorage` instead of `chrome.storage`).
 - `node tools/check-install.js --headed` loads the extension into a throwaway
   Edge/Chrome and verifies the ID, storage backend and app boot.
+- **Publishing to the free browser stores** (Microsoft Edge Add-ons and Firefox
+  AMO, both $0): `node tools/build-store.js` builds a ready-to-upload package
+  for each into `dist/`, and [`docs/PUBLISHING.md`](docs/PUBLISHING.md) walks
+  through the submission, the paste-ready listing text and the permission
+  justifications.
 - YouTube answers caption requests that carry `Origin: chrome-extension://…`
   with a 403, and it refuses to play any embed that arrives without a full
   HTTP `Referer` (errors **153** and **152-4**) — which no browser ever sends
