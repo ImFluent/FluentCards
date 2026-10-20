@@ -10,6 +10,14 @@ if (typeof importScripts === "function") importScripts("lib/storage.js");
 
 var REMINDER_ALARM = "fc-reminder";
 
+// Safari (converted with safari-web-extension-converter) supports the badge,
+// alarms and messaging, but NOT chrome.notifications — guard every use so one
+// missing API can't take the whole background script down. Chrome/Edge/Firefox
+// always have these, so their behavior is unchanged.
+var HAS_BADGE = !!(chrome.action && chrome.action.setBadgeText);
+var HAS_ALARMS = !!(chrome.alarms && chrome.alarms.create);
+var HAS_NOTIFICATIONS = !!(chrome.notifications && chrome.notifications.create);
+
 /* ------------------------------------------------------------------ startup */
 function refresh() {
   return FC.getSettings()
@@ -41,6 +49,7 @@ function updateBadge() {
     .then(function (r) {
       var queue = FC.buildQueue(r[0], r[1], r[2], Date.now());
       var n = queue.length;
+      if (!HAS_BADGE) return;
       chrome.action.setBadgeBackgroundColor({ color: "#6d5efc" });
       chrome.action.setBadgeText({ text: n > 0 ? (n > 99 ? "99+" : String(n)) : "" });
     })
@@ -49,6 +58,7 @@ function updateBadge() {
 
 /* ---------------------------------------------------------------- reminder */
 function scheduleReminder(settings) {
+  if (!HAS_ALARMS) return;
   if (!settings || !settings.reminder) {
     chrome.alarms.clear(REMINDER_ALARM);
     return;
@@ -70,31 +80,38 @@ function scheduleReminder(settings) {
   });
 }
 
-chrome.alarms.onAlarm.addListener(function (alarm) {
-  if (alarm.name !== REMINDER_ALARM) return;
+if (HAS_ALARMS) {
+  chrome.alarms.onAlarm.addListener(function (alarm) {
+    if (alarm.name !== REMINDER_ALARM) return;
 
-  Promise.all([FC.listCards(), FC.getSettings(), FC.getStats()])
-    .then(function (r) {
-      var queue = FC.buildQueue(r[0], r[1], r[2], Date.now());
-      if (!queue.length) return;
-      var n = queue.length;
-      chrome.notifications.create("fc-reminder", {
-        type: "basic",
-        iconUrl: chrome.runtime.getURL("icons/icon128.png"),
-        title: "FluentCards — " + n + (n === 1 ? " word is" : " words are") + " waiting",
-        message:
-          "A " + (n === 1 ? "quick review" : "quick review") + " takes about " +
-          Math.max(1, Math.round(n / 8)) + " minute" + (n > 8 ? "s" : "") + ".",
-        priority: 1
-      });
-    })
-    .catch(function () {});
-});
+    Promise.all([FC.listCards(), FC.getSettings(), FC.getStats()])
+      .then(function (r) {
+        var queue = FC.buildQueue(r[0], r[1], r[2], Date.now());
+        if (!queue.length) return;
+        var n = queue.length;
+        /* Safari has no extension notifications: the toolbar badge (updated by
+           refresh/updateBadge) is the reminder there — nudge it visibly. */
+        if (!HAS_NOTIFICATIONS) return updateBadge();
+        chrome.notifications.create("fc-reminder", {
+          type: "basic",
+          iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+          title: "FluentCards — " + n + (n === 1 ? " word is" : " words are") + " waiting",
+          message:
+            "A quick review takes about " +
+            Math.max(1, Math.round(n / 8)) + " minute" + (n > 8 ? "s" : "") + ".",
+          priority: 1
+        });
+      })
+      .catch(function () {});
+  });
+}
 
-chrome.notifications.onClicked.addListener(function () {
-  chrome.tabs.create({ url: chrome.runtime.getURL("app.html") });
-  chrome.notifications.clear("fc-reminder");
-});
+if (HAS_NOTIFICATIONS) {
+  chrome.notifications.onClicked.addListener(function () {
+    chrome.tabs.create({ url: chrome.runtime.getURL("app.html") });
+    chrome.notifications.clear("fc-reminder");
+  });
+}
 
 /* --------------------------------------------------------------- messaging */
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {

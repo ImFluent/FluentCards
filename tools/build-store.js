@@ -1,4 +1,4 @@
-// Builds the two browser-store packages from this folder's source.
+// Builds the browser-store packages from this folder's source.
 //
 //   node tools/build-store.js
 //
@@ -14,7 +14,13 @@
 //                    (ID + strict_min_version + data_collection_permissions),
 //                    key/minimum_chrome_version removed (Firefox ignores them,
 //                    addons-linter flags them).
-//   dist/*.zip       The two uploadable archives (manifest.json at zip root).
+//   dist/safari/     Source folder for Apple's safari-web-extension-converter
+//                    (Mac-only tool, ships with Xcode) — MV3 + background.scripts
+//                    (Safari has no extension service worker), key and
+//                    minimum_chrome_version removed. NOT a store upload: run
+//                    tools/make-safari-source.sh on a Mac to turn it into an
+//                    Xcode project — see docs/SAFARI.md.
+//   dist/*.zip       The uploadable archives (manifest.json at zip root).
 //
 // Nothing here is committed: dist/ is gitignored.
 const { cpSync, mkdirSync, rmSync, readFileSync, writeFileSync, readdirSync, statSync, existsSync } = require("fs");
@@ -115,6 +121,26 @@ function buildFirefox() {
   return dir;
 }
 
+/* ----------------------------------------------------------- safari ---- */
+function buildSafari() {
+  const dir = join(DIST, "safari");
+  stage(dir);
+  const m = JSON.parse(JSON.stringify(BASE_MANIFEST));
+
+  // Safari runs extension backgrounds as event pages, not service workers:
+  // give the converter "background.scripts" (the same form Firefox uses).
+  // background.js guards its importScripts() call, so loading storage here
+  // keeps FC defined in every context.
+  m.background = { scripts: ["lib/storage.js", "background.js"] };
+
+  // Chrome-only keys — the converter warns on them and Safari ignores them.
+  delete m.key;
+  delete m.minimum_chrome_version;
+
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify(m, null, 2));
+  return dir;
+}
+
 /* ---------------------------------------------------------------- zip ---- */
 function zip(dir, out) {
   // Compress-Archive stores the folder itself unless we cd into it, so zip the
@@ -136,7 +162,15 @@ function verifyStaged(dir, label) {
   const problems = [];
   const manifestPath = join(dir, "manifest.json");
   const m = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (label === "firefox") {
+  if (label === "safari") {
+    // Same shape the converter eats cleanly: scripts-based background (Safari
+    // runs backgrounds as pages, not service workers) and no Chrome-only keys.
+    if (!m.background || !Array.isArray(m.background.scripts)) problems.push("no background.scripts");
+    if (m.background && m.background.service_worker) problems.push("still has service_worker");
+    if (m.key !== undefined) problems.push("still has key");
+    if (m.minimum_chrome_version !== undefined) problems.push("still has minimum_chrome_version");
+    if (m.browser_specific_settings !== undefined) problems.push("still has browser_specific_settings (Firefox-only)");
+  } else if (label === "firefox") {
     if (!m.background || !Array.isArray(m.background.scripts)) problems.push("no background.scripts");
     if (m.background && m.background.service_worker) problems.push("still has service_worker");
     if (m.key !== undefined) problems.push("still has key");
@@ -173,9 +207,10 @@ mkdirSync(DIST, { recursive: true });
 
 const edgeDir = buildEdge();
 const ffDir = buildFirefox();
+const safariDir = buildSafari();
 
 let failed = false;
-for (const [dir, label] of [[edgeDir, "edge"], [ffDir, "firefox"]]) {
+for (const [dir, label] of [[edgeDir, "edge"], [ffDir, "firefox"], [safariDir, "safari"]]) {
   const problems = verifyStaged(dir, label);
   if (problems.length) {
     failed = true;
@@ -188,10 +223,13 @@ if (failed) process.exit(1);
 
 const edgeZip = join(DIST, "FluentCards-edge-" + VERSION + ".zip");
 const ffZip = join(DIST, "FluentCards-firefox-" + VERSION + ".zip");
+const safariZip = join(DIST, "FluentCards-safari-" + VERSION + "-src.zip");
 zip(edgeDir, edgeZip);
 zip(ffDir, ffZip);
+zip(safariDir, safariZip);
 
 const kb = (p) => Math.round(statSync(p).size / 1024) + " KB";
 console.log("\nBuilt:");
 console.log("  " + edgeZip + "  (" + kb(edgeZip) + ")");
 console.log("  " + ffZip + "  (" + kb(ffZip) + ")");
+console.log("  " + safariZip + "  (" + kb(safariZip) + ")");

@@ -262,6 +262,12 @@ FluentCards/
   for each into `dist/`, and [`docs/PUBLISHING.md`](docs/PUBLISHING.md) walks
   through the submission, the paste-ready listing text and the permission
   justifications.
+- **Safari on a Mac** (Apple Silicon included): free, via Apple's
+  `safari-web-extension-converter` (ships with Xcode) — run
+  `bash tools/make-safari-source.sh` on the Mac and it generates an Xcode
+  project you build once and enable in Safari. No paid Apple Developer
+  account needed for your own Mac. Step-by-step:
+  [`docs/SAFARI.md`](docs/SAFARI.md).
 - YouTube answers caption requests that carry `Origin: chrome-extension://…`
   with a 403, and it refuses to play any embed that arrives without a full
   HTTP `Referer` (errors **153** and **152-4**) — which no browser ever sends
