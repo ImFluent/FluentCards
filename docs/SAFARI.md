@@ -51,6 +51,23 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 5. Open YouTube, click a word in the subtitles — the card pops. The toolbar
    icon opens your library, same as on Windows.
 
+## Verify it's working
+
+After enabling, run the bundled check from the repo folder:
+
+```bash
+tools/verify-safari-mac.sh
+```
+
+It answers three questions: was the app + extension built, did macOS
+register it with Safari (`pluginkit`), and is it **actually saving cards** —
+it reads Safari's extension storage and lists the `fc:card:*` words it finds.
+Each `[MISS]` line tells you how to fix it (e.g. "run the app from Xcode
+once", "click a word in YouTube subtitles to create a test card"). Exit 0
+means everything checks out. If it can't read Safari's data folder, grant
+Terminal **Full Disk Access** (System Settings → Privacy & Security) and
+retry — that's a macOS privacy wall, not a bug.
+
 ## What works in Safari
 
 Everything except the native **reminder notification**. Safari doesn't
@@ -88,3 +105,6 @@ itself (e.g. signing), re-apply them after a regeneration.
   ticked in the Develop menu.
 - **Badge/notifications questions** — see "What works in Safari" above; the
   missing reminder popup is expected behavior, not a bug.
+- **Not sure whether it's really working** — run `tools/verify-safari-mac.sh`;
+  it prints exactly what's missing (app built? registered? cards saved?) and
+  how to fix each thing.

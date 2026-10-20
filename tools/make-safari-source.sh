@@ -98,4 +98,5 @@ echo "  3. Safari → Settings → Advanced → 'Show features for web developer
 echo "  4. Safari → Develop → 'Allow Unsigned Extensions' (development builds)."
 echo "  5. Safari → Settings → Extensions → tick FluentCards, allow it on"
 echo "     youtube.com, done. Click the toolbar icon to open your library."
+echo "  6. Confirm everything works:  tools/verify-safari-mac.sh"
 echo "=============================================================="
