@@ -142,20 +142,55 @@ function buildSafari() {
 }
 
 /* ---------------------------------------------------------------- zip ---- */
+function psQuote(s) {
+  return "'" + s.replace(/'/g, "''") + "'";
+}
+
 function zip(dir, out) {
-  // Compress-Archive stores the folder itself unless we cd into it, so zip the
-  // *contents* — store reviewers expect manifest.json at the archive root.
-  execFileSync(
-    "powershell",
-    [
-      "-NoProfile",
-      "-Command",
-      "$ErrorActionPreference='Stop'; " +
-        "Compress-Archive -Path (Join-Path '" + dir.replace(/'/g, "''") + "' '*') " +
-        "-DestinationPath '" + out.replace(/'/g, "''") + "' -Force"
-    ],
-    { stdio: "inherit" }
-  );
+  // NOT Compress-Archive: it stores entry names with backslashes
+  // (icons\icon16.png), which violates the ZIP spec — names must use "/" —
+  // and Mozilla's validator rejects such archives with "Invalid file name in
+  // archive". Build with .NET's ZipArchive and explicit forward-slash names;
+  // contents go at the archive root (manifest.json at top level).
+  const script =
+    "$ErrorActionPreference='Stop'; " +
+    "Add-Type -AssemblyName System.IO.Compression; " +
+    "Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
+    "$base=(Resolve-Path " + psQuote(dir) + ").Path; " +
+    "if (Test-Path " + psQuote(out) + ") { Remove-Item " + psQuote(out) + " -Force }; " +
+    "$fs=[System.IO.File]::Open(" + psQuote(out) + ",[System.IO.FileMode]::Create); " +
+    "$zip=New-Object System.IO.Compression.ZipArchive($fs,[System.IO.Compression.ZipArchiveMode]::Create); " +
+    "Get-ChildItem -Path $base -Recurse -File | ForEach-Object { " +
+    "$rel=$_.FullName.Substring($base.Length).TrimStart('\\').Replace('\\','/'); " +
+    "[System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip,$_.FullName,$rel) | Out-Null " +
+    "}; " +
+    "$zip.Dispose(); $fs.Dispose()";
+  execFileSync("powershell", ["-NoProfile", "-Command", script], { stdio: "inherit" });
+}
+
+function verifyZip(zipPath) {
+  // Read the archive's central directory back and assert spec-compliance:
+  // forward-slash entry names only, manifest.json at the root. Catches a
+  // backslash bug at build time instead of at store upload.
+  const script =
+    "Add-Type -AssemblyName System.IO.Compression.FileSystem; " +
+    "$z=[System.IO.Compression.ZipFile]::OpenRead(" + psQuote(zipPath) + "); " +
+    "$names=@($z.Entries | ForEach-Object { $_.FullName }); " +
+    "$z.Dispose(); " +
+    "$names -join [char]10";
+  const out = execFileSync("powershell", ["-NoProfile", "-Command", script], { encoding: "utf8" });
+  const names = out
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const problems = [];
+  if (!names.length) problems.push("archive is empty");
+  if (!names.includes("manifest.json")) problems.push("manifest.json is not at the archive root");
+  names.forEach((n) => {
+    if (n.includes("\\")) problems.push("backslash in entry name: " + n);
+    if (n.startsWith("/") || n.includes(":")) problems.push("absolute/drive entry name: " + n);
+  });
+  return problems;
 }
 
 function verifyStaged(dir, label) {
@@ -227,6 +262,17 @@ const safariZip = join(DIST, "FluentCards-safari-" + VERSION + "-src.zip");
 zip(edgeDir, edgeZip);
 zip(ffDir, ffZip);
 zip(safariDir, safariZip);
+
+for (const z of [edgeZip, ffZip, safariZip]) {
+  const zp = verifyZip(z);
+  if (zp.length) {
+    failed = true;
+    console.error("ZIP VERIFY FAIL [" + z + "]:\n  - " + zp.join("\n  - "));
+  } else {
+    console.log("ZIP VERIFY OK " + z);
+  }
+}
+if (failed) process.exit(1);
 
 const kb = (p) => Math.round(statSync(p).size / 1024) + " KB";
 console.log("\nBuilt:");
